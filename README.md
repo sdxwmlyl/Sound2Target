@@ -69,7 +69,10 @@ cd .. && start.bat
 | 📝 **智能转写** | FunASR Paraformer-large + 说话人分离 + 热词增强 |
 | 🤖 **AI 总结** | 一键摘要 · 智能问答 · 观点演变追踪（流式输出） |
 | 🔌 **Agent 集成** | MCP Server 12 工具 · REST API · 批量流水线 |
+| 💻 **低配置友好** | 纯 CPU 可运行，无需独显；8GB 内存即可流畅工作 |
 | 🎨 **现代 UI** | Apple 风格 · Markdown 渲染 · 响应式布局 |
+
+> **为什么低配置很重要？** 不是每个人都有 RTX 4090。FunASR 基于 PyTorch CPU 推理，普通笔记本就能跑。LLM 部分通过 Ollama 量化模型（Q4_K_M）或云端 API（阿里百炼/Deepseek）解决，显卡门槛为零。
 
 ### 🆚 和其他方案的区别
 
@@ -81,6 +84,7 @@ cd .. && start.bat
 | **实时录音转写** | ✅ | ⚠️ | ❌ |
 | **观点演变追踪** | ✅ | ❌ | ❌ |
 | **MCP/Agent 集成** | ✅ 12 工具 | ❌ | ❌ |
+| **低配置可运行** | ✅ CPU 即可 | ✅ 云端 | ❌ 需 GPU |
 | **中文优化** | ✅ 热词增强 | ⚠️ | ⚠️ |
 
 ### 🏗️ 架构
@@ -153,7 +157,10 @@ cd .. && start.bat
 | 📝 **Smart Transcription** | FunASR Paraformer-large + Speaker diarization + Hotword boost |
 | 🤖 **AI Intelligence** | One-click summary · Q&A · Viewpoint evolution tracking |
 | 🔌 **Agent Integration** | MCP Server (12 tools) · REST API · Batch pipeline |
+| 💻 **Low-Spec Friendly** | Runs on pure CPU, no GPU required; 8GB RAM is enough |
 | 🎨 **Modern UI** | Apple-style design · Markdown rendering · Responsive |
+
+> **Why does low-spec matter?** Not everyone has an RTX 4090. FunASR runs on PyTorch CPU inference — any laptop handles it. For LLM, use Ollama quantized models (Q4_K_M) or cloud APIs (Aliyun/Deepseek) — zero GPU required.
 
 ### 🆚 Why not use X?
 
@@ -165,6 +172,7 @@ cd .. && start.bat
 | **Real-time transcription** | ✅ | ⚠️ | ❌ |
 | **Viewpoint tracking** | ✅ | ❌ | ❌ |
 | **MCP/Agent tools** | ✅ 12 tools | ❌ | ❌ |
+| **Runs without GPU** | ✅ CPU OK | ✅ Cloud | ❌ Needs GPU |
 | **Chinese optimized** | ✅ hotwords | ⚠️ | ⚠️ |
 
 ### 🏗️ Architecture
