@@ -1,0 +1,310 @@
+@import './variables.scss';
+
+// Base styles
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: $font-size-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: $font-sans;
+  color: $text-primary;
+  background: $bg-light;
+  line-height: 1.5;
+  margin: 0;
+}
+
+// Card component
+.card {
+  background: $bg-card;
+  border: 1px solid $border-light;
+  border-radius: 12px;
+  padding: $spacing-lg;
+  box-shadow: $shadow-sm;
+  transition: box-shadow $transition-base ease;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+// Card header
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: $spacing-md;
+  border-bottom: 1px solid $border-light;
+  margin-bottom: $spacing-md;
+
+  h3 {
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0;
+  }
+}
+
+// Button styles
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all $transition-fast ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: $primary;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: $primary-hover;
+  }
+}
+
+.btn-secondary {
+  background: $bg-hover;
+  color: $text-primary;
+  border: 1px solid $border-light;
+
+  &:hover:not(:disabled) {
+    background: $border-light;
+  }
+}
+
+.btn-danger {
+  background: $danger;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: #dc2626;
+  }
+}
+
+.btn-success {
+  background: $success;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: #16a34a;
+  }
+}
+
+// Icon button
+.btn-icon {
+  padding: $spacing-sm;
+  border-radius: 8px;
+  background: transparent;
+  color: $text-secondary;
+
+  &:hover {
+    background: $bg-hover;
+    color: $text-primary;
+  }
+}
+
+// Input styles
+.input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-base;
+  border: 1px solid $border-light;
+  border-radius: 8px;
+  background: $bg-card;
+  color: $text-primary;
+  transition: border-color $transition-fast ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  &:placeholder {
+    color: $text-muted;
+  }
+}
+
+// Table styles
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    text-align: left;
+    padding: $spacing-md;
+    font-size: $font-size-sm;
+    font-weight: 600;
+    color: $text-secondary;
+    background: $bg-hover;
+    border-bottom: 2px solid $border-light;
+  }
+
+  td {
+    padding: $spacing-md;
+    border-bottom: 1px solid $border-light;
+  }
+
+  tr:hover td {
+    background: $bg-hover;
+  }
+}
+
+// Badge/Tag styles
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-sm;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+.tag-info {
+  background: rgba($info, 0.1);
+  color: $info;
+}
+
+.tag-success {
+  background: rgba($success, 0.1);
+  color: $success;
+}
+
+.tag-warning {
+  background: rgba($warning, 0.1);
+  color: $warning;
+}
+
+.tag-danger {
+  background: rgba($danger, 0.1);
+  color: $danger;
+}
+
+// Status indicator
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-active {
+  background: $success;
+}
+
+.status-processing {
+  background: $warning;
+  animation: pulse 1.5s infinite;
+}
+
+.status-error {
+  background: $danger;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+// Layout
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-lg;
+}
+
+.grid {
+  display: grid;
+  gap: $spacing-md;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+// Flex utilities
+.flex {
+  display: flex;
+}
+
+.flex-between {
+  justify-content: space-between;
+}
+
+.flex-center {
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-gap-sm {
+  gap: $spacing-sm;
+}
+
+.flex-gap-md {
+  gap: $spacing-md;
+}
+
+// Typography
+.text-sm { font-size: $font-size-sm; }
+.text-base { font-size: $font-size-base; }
+.text-lg { font-size: $font-size-lg; }
+.text-xl { font-size: $font-size-xl; }
+
+.text-muted { color: $text-muted; }
+.text-secondary { color: $text-secondary; }
+
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+
+// Accessibility
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Focus visible for keyboard navigation
+.focus-visible:focus-visible {
+  outline: 2px solid $primary;
+  outline-offset: 2px;
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,107 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+venv/
+.venv/
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+
+# Node.js
+node_modules/
+npm-debug.log*
+*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Data & Logs (runtime generated)
+S2T/data/
+S2T/uploads/
+S2T/logs/
+S2T/backend/data/
+S2T/backend/uploads/
+S2T/backend/__pycache__/
+S2T/backend/*/__pycache__/
+S2T/backend/*/*/__pycache__/
+
+# Meeting results (generated)
+meeting_results/
+
+# Model files
+*.gguf
+*.bin
+*.onnx
+*.pt
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Config overrides
+S2T/backend/config/config.yaml
+
+# Sub-projects (separate repos / experimental)
+ProjectLocalASR/
+ProjectRec2Sum/
+ProjectSound2Answer/
+meeting-transcriber/
+.opencode/
+
+# Temporary scripts (project-specific helper scripts)
+auto_*.py
+check_*.py
+cleanup_*.py
+create_*.py
+debug_*.py
+diagnose_*.py
+extract_*.py
+get_*.py
+hotword_*.py
+kick_*.py
+link_*.py
+list_*.py
+mkproj_*.py
+new_project.py
+poll*.py
+precheck.py
+record_*.py
+reset_*.py
+restart_*.py
+retry_*.py
+retranscribe_*.py
+see_*.py
+show_*.py
+start_*.py
+stop_*.py
+summarize_*.py
+test_*.py
+upload_*.py
+analyze_*.py
+transcript_bridge.txt
+project_11_transcript.txt
+s2t_backend.log
+create_cdp_shortcut.ps1
+
+# Test frontend batch
+S2T/test_frontend.bat
+S2T/test_*.py

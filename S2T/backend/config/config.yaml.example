@@ -1,0 +1,41 @@
+# S2T 后端配置文件
+# 复制此文件为 config.yaml 并根据实际环境修改
+
+asr:
+  engine: funasr
+  # FunASR 模型路径（首次运行自动下载到 ~/.cache/modelscope/）
+  model: ""  # speech_paraformer-large-vad-punc
+  spk_model: ""  # speech_campplus_sv
+  vad_model: ""  # speech_fsmn_vad
+  punc_model: ""  # punc_ct-transformer
+  max_concurrent: 2
+  device: cpu  # cpu / cuda
+
+llm:
+  provider: ollama  # ollama / aliyun / deepseek
+  ollama:
+    base_url: http://localhost:11434/v1
+    model: qwen3.5:9b
+    api_key: ""
+  aliyun:
+    base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    model: qwen-plus
+  deepseek:
+    base_url: https://api.deepseek.com/v1
+    model: deepseek-chat
+
+audio:
+  sample_rate: 16000
+  chunk_duration: 0.5
+  supported_formats:
+    - wav
+    - mp3
+    - m4a
+    - flac
+    - ogg
+
+database:
+  path: ./data/s2t.db
+
+storage:
+  upload_dir: ./data/uploads
