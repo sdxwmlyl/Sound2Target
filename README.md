@@ -1,159 +1,261 @@
-# 🎙️ Sound2Target (S2T) — 本地化语音转写系统
+<div align="center">
 
-> 100% 本地运行的会议录音、实时转写、AI 总结一站式解决方案。
+# 🎙️ Sound2Target
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.10+-green.svg)](https://www.python.org/)
-[![Vue.js](https://img.shields.io/badge/Vue.js-3-brightgreen.svg)](https://vuejs.org/)
+### *Not to words, just valuable target.*
+
+<p>
+  <strong>本地化语音转写 · AI 总结 · 观点追踪</strong><br/>
+  <em>Local-first speech transcription · AI summarization · viewpoint tracking</em>
+</p>
+
+<p>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2ea44f?style=flat-square" alt="License: MIT"></a>
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Vue.js-3-4FC08D?style=flat-square&logo=vue.js&logoColor=white" alt="Vue.js">
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/100%25_Local-No_Cloud_Required-blueviolet?style=flat-square" alt="100% Local">
+</p>
+
+<br/>
+
+<p>
+  <b>中文</b> | <a href="#english">English</a>
+</p>
+
+</div>
 
 ---
 
-## ✨ 功能特性
+## 🇨🇳 中文
 
-| 模块 | 能力 |
-|------|------|
-| 🎤 **多源录音** | 麦克风录音、系统声音捕获（VB-CABLE）、文件上传（wav/mp3/m4a/flac/ogg） |
-| 📝 **智能转写** | FunASR Paraformer-large 语音识别 + CAMP++ 说话人分离 + 热词增强 |
-| 🤖 **AI 能力** | 一键总结（流式输出）、智能问答、观点提取与演变追踪 |
-| 📁 **项目管理** | 项目-音频文件层级、转写结果编辑、历史记录、全文搜索 |
-| 🎨 **现代 UI** | Apple 风格设计、Markdown 渲染、响应式布局 |
-| 🔌 **MCP Server** | 12 个 MCP 工具，支持 AI Agent 集成调用 |
+### 一句话介绍
 
-## 🏗️ 技术架构
+> 把会议录音变成**可操作的目标**，而不是一堆文字。
+> 录音 → 转写 → AI 总结 → 观点演变追踪，全程本地运行，零数据外泄。
+
+### ✨ 核心能力
+
+<table>
+<tr>
+<td width="50%">
+
+#### 🎤 多源录音
+- 麦克风实时录音
+- 系统声音捕获（VB-CABLE）
+- 文件上传（wav/mp3/m4a/flac/ogg）
+- 后台静默录音，不干扰工作
+
+</td>
+<td width="50%">
+
+#### 📝 智能转写
+- FunASR Paraformer-large 语音识别
+- CAMP++ 说话人分离
+- 热词增强（专业术语识别率 ↑）
+- 批量并发转写
+
+</td>
+</tr>
+<tr>
+<td>
+
+#### 🤖 AI 能力
+- 一键总结（流式输出）
+- 智能问答（基于转写内容）
+- 观点提取与演变追踪
+- 多 LLM 支持：Ollama / 阿里百炼 / Deepseek
+
+</td>
+<td>
+
+#### 🔌 Agent 集成
+- MCP Server（12 个工具）
+- 支持 AI Agent 调用
+- 批量转写流水线
+- 标准 REST API
+
+</td>
+</tr>
+</table>
+
+### 🏗️ 技术架构
 
 ```
-Sound2Target/
-├── S2T/
-│   ├── backend/           # FastAPI 后端
-│   │   ├── api/           # REST API 路由
-│   │   ├── core/          # 核心模块（ASR、LLM、音频捕获）
-│   │   ├── config/        # 配置文件
-│   │   ├── models/        # 数据模型（SQLite）
-│   │   └── utils/         # 工具函数
-│   ├── frontend/          # Vue 3 + Element Plus 前端
-│   ├── tests/             # 测试用例
-│   └── docs/              # 项目文档
-├── s2t_mcp_server.py      # MCP Server（AI Agent 集成）
-├── pipeline.py            # 批量转写流水线
-└── start_bg_recording.py  # 后台录音脚本
+┌─────────────────────────────────────────────────┐
+│                   Vue 3 Frontend                │
+│          Element Plus · Apple 风格 UI           │
+└──────────────────────┬──────────────────────────┘
+                       │ HTTP / WebSocket
+┌──────────────────────▼──────────────────────────┐
+│                  FastAPI Backend                 │
+│  ┌──────────┐ ┌──────────┐ ┌──────────────────┐ │
+│  │ ASR 引擎  │ │ LLM 引擎  │ │   实时录音引擎    │ │
+│  │FunASR    │ │Ollama    │ │sounddevice      │ │
+│  │Paraformer│ │百炼/DS   │ │WebSocket        │ │
+│  └──────────┘ └──────────┘ └──────────────────┘ │
+│                    SQLite                        │
+└─────────────────────────────────────────────────┘
+          ▲
+          │ MCP Protocol
+┌─────────┴───────────────────────────────────────┐
+│              s2t_mcp_server.py                   │
+│         AI Agent 集成 · 12 工具                  │
+└─────────────────────────────────────────────────┘
 ```
 
-## 🚀 快速开始
-
-### 环境要求
-
-- Python 3.10+
-- Node.js 18+
-- （可选）CUDA GPU — 加速 ASR 推理
-- （可选）Ollama — 本地 LLM 推理
-
-### 安装
+### 🚀 快速开始
 
 ```bash
-# 克隆仓库
+# 1. 克隆
 git clone https://github.com/sdxwmlyl/Sound2Target.git
 cd Sound2Target
 
-# 后端依赖
+# 2. 后端
 cd S2T/backend
 pip install -r requirements.txt
+cp config/config.yaml.example config/config.yaml
+# 编辑 config.yaml，配置 ASR 模型路径和 LLM provider
 
-# 前端依赖
+# 3. 前端
 cd ../frontend
 npm install
+
+# 4. 启动
+cd ..
+start.bat   # 一键启动前后端
 ```
 
-### 配置
+> 浏览器访问 **http://localhost:3000** 🎉
 
-```bash
-# 复制配置模板
-cp S2T/backend/config/config.yaml.example S2T/backend/config/config.yaml
-
-# 编辑配置，指定 ASR 模型路径和 LLM provider
-```
-
-#### LLM 环境变量（按需设置）
-
-```bash
-# 阿里百炼
-export ALIYUN_API_KEY=your_api_key
-
-# Deepseek
-export DEEPSEEK_API_KEY=your_api_key
-```
-
-### 启动
-
-```bash
-# 方式一：一键启动
-cd S2T
-./start.bat
-
-# 方式二：分别启动
-# 终端 1 - 后端
-cd S2T/backend
-python -m uvicorn main:app --host localhost --port 8000
-
-# 终端 2 - 前端
-cd S2T/frontend
-npm run dev
-```
-
-访问 http://localhost:3000 🎉
-
-### 系统声音录制（可选）
+#### 系统声音录制（可选）
 
 1. 安装 [VB-Audio Virtual Cable](https://vb-audio.com/Cable/)
 2. Windows 声音设置 → 输出设备选择 **"CABLE Input"**
-3. 在 S2T 中选择"系统"录音模式
+3. S2T 中选择"系统"录音模式
 
-## 📖 使用流程
-
-```
-创建项目 → 上传音频/开始录音 → 自动转写 → AI 总结/问答
-                                        ↓
-                                  观点提取与演变追踪
-```
-
-### MCP Server（AI Agent 集成）
-
-```bash
-# 启动 MCP Server
-python s2t_mcp_server.py
-```
-
-提供 12 个工具：`create_project`、`start_system_recording`、`stop_recording`、`get_transcript_text`、`summarize_project`、`extract_viewpoints` 等。
-
-## 🔧 ASR 配置说明
-
-| 参数 | 说明 | 推荐值 |
-|------|------|--------|
-| `speech_noise_threshold` | VAD 噪声阈值 | 0.5（默认 0.8 过高） |
-| `max_concurrent` | 并发转写数 | 2（CPU）/ 4（GPU） |
-| `device` | 推理设备 | `cpu` / `cuda` |
-
-### 热词配置
-
-在录音时输入热词（空格分隔），可提高专业术语识别率：
+### 📖 使用流程
 
 ```
-人工智能 机器学习 深度学习 大语言模型
+创建项目 → 上传音频 / 开始录音 → 自动转写 → AI 总结 / 智能问答
+                                            ↓
+                                    观点提取与演变追踪
 ```
 
-## 📚 文档
+### 📚 文档
 
-- [需求文档](docs/requirements.md)
-- [技术设计](docs/technical-design.md)
-- [S2T 详细文档](S2T/README.md)
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-## 📄 许可证
-
-[MIT License](LICENSE) — 自由使用、修改和分发。
+| 文档 | 说明 |
+|------|------|
+| [S2T 详细文档](S2T/README.md) | 后端/前端/配置详解 |
+| [需求文档](docs/requirements.md) | 原始需求设计 |
+| [技术设计](docs/technical-design.md) | 技术方案 |
+| [API 文档](http://localhost:8000/docs) | 启动后端后访问 |
 
 ---
 
-> **Sound2Target** — 把声音变成目标。🎯
+<a id="english"></a>
+
+## 🇬🇧 English
+
+### One-liner
+
+> Turn meeting recordings into **actionable targets**, not just words.
+> Record → Transcribe → AI Summarize → Track viewpoint evolution — all locally, zero data leaks.
+
+### ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+#### 🎤 Multi-Source Recording
+- Real-time microphone capture
+- System audio capture (VB-CABLE)
+- File upload (wav/mp3/m4a/flac/ogg)
+- Background silent recording
+
+</td>
+<td width="50%">
+
+#### 📝 Smart Transcription
+- FunASR Paraformer-large ASR
+- CAMP++ speaker diarization
+- Hotword boosting for domain terms
+- Batch concurrent transcription
+
+</td>
+</tr>
+<tr>
+<td>
+
+#### 🤖 AI Capabilities
+- One-click summarization (streaming)
+- Q&A over transcription
+- Viewpoint extraction & evolution tracking
+- Multi-LLM: Ollama / Aliyun / Deepseek
+
+</td>
+<td>
+
+#### 🔌 Agent Integration
+- MCP Server (12 tools)
+- AI Agent compatible
+- Batch transcription pipeline
+- Standard REST API
+
+</td>
+</tr>
+</table>
+
+### 🚀 Quick Start
+
+```bash
+# 1. Clone
+git clone https://github.com/sdxwmlyl/Sound2Target.git
+cd Sound2Target
+
+# 2. Backend
+cd S2T/backend
+pip install -r requirements.txt
+cp config/config.yaml.example config/config.yaml
+# Edit config.yaml — set ASR model path and LLM provider
+
+# 3. Frontend
+cd ../frontend
+npm install
+
+# 4. Launch
+cd ..
+start.bat   # Start both backend & frontend
+```
+
+> Open **http://localhost:3000** in your browser 🎉
+
+### 🧩 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | FastAPI + SQLite |
+| Frontend | Vue 3 + Element Plus |
+| ASR | FunASR (Paraformer + CAMP++) |
+| LLM | Ollama / Aliyun Bailian / Deepseek |
+| Audio | sounddevice + WebSocket |
+| Agent | MCP Protocol (12 tools) |
+
+---
+
+## 🤝 Contributing
+
+Issues and pull requests are welcome!
+
+## 📄 License
+
+[MIT](LICENSE) — use it, fork it, ship it.
+
+---
+
+<div align="center">
+
+**Sound2Target** — *Not to words, just valuable target.* 🎯
+
+</div>
