@@ -15,10 +15,13 @@ class ASRConfig(BaseModel):
     device: str = "cuda"
 
 
-class OllamaConfig(BaseModel):
-    base_url: str = "http://localhost:8080/v1"
-    model: str = "qwen2.5-7b.gguf"
+class LlamaCppConfig(BaseModel):
+    base_url: str = "http://localhost:8081/v1"
+    model: str = "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf"
     api_key: str = ""
+
+# 兼容旧配置名
+OllamaConfig = LlamaCppConfig
 
 
 class AliyunConfig(BaseModel):
@@ -34,8 +37,10 @@ class DeepseekConfig(BaseModel):
 
 
 class LLMConfig(BaseModel):
-    provider: str = "ollama"
-    ollama: OllamaConfig = OllamaConfig()
+    provider: str = "llamacpp"
+    llamacpp: LlamaCppConfig = LlamaCppConfig()
+    # 兼容旧配置：ollama 字段映射到 llamacpp
+    ollama: Optional[LlamaCppConfig] = None
     aliyun: AliyunConfig = AliyunConfig()
     deepseek: DeepseekConfig = DeepseekConfig()
 
@@ -128,7 +133,7 @@ def get_llm_api_key() -> str:
     settings = get_settings()
     provider = settings.llm.provider
     
-    if provider == "ollama":
+    if provider in ("llamacpp", "ollama"):
         return ""
     elif provider == "aliyun":
         return os.getenv("ALIYUN_API_KEY", settings.llm.aliyun.api_key)

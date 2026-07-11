@@ -38,9 +38,13 @@ class LLMFactory:
         cls._last_provider = provider
         
         if provider not in cls._instances:
-            if provider == "ollama":
-                from .ollama import OllamaLLM
-                cls._instances[provider] = OllamaLLM()
+            if provider == "llamacpp":
+                from .llamacpp import LlamaCppLLM
+                cls._instances[provider] = LlamaCppLLM()
+            elif provider == "ollama":
+                # 兼容旧配置，实际走同一个 OpenAI 兼容 API
+                from .llamacpp import LlamaCppLLM
+                cls._instances[provider] = LlamaCppLLM()
             elif provider == "aliyun":
                 from .aliyun import AliyunLLM
                 cls._instances[provider] = AliyunLLM()

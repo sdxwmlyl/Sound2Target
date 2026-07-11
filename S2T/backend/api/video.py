@@ -230,7 +230,7 @@ async def process_video_analysis(
                     )
                 }
             ]
-            summary = await llm.chat(messages)
+            summary = await llm.chat(messages, max_tokens=8192)
 
         # Save final results
         await asyncio.to_thread(
