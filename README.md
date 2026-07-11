@@ -115,6 +115,13 @@ cd .. && start.bat
 └─────────────────────────────────────────────┘
 ```
 
+### 📋 版本日志
+
+| 版本 | 日期 | 亮点 |
+|:-----|:-----|:-----|
+| **v1.1.0** | 2026-07-11 | 🎬 视频内容分析（URL→转写→截图→多模态识别→融合总结）· LLM 引擎统一为 llama.cpp · MCP 14 工具 |
+| **v1.0.0** | 2026-06-01 | 🎉 首发：语音转写 · AI 总结 · 观点追踪 · 实时录音 · MCP 12 工具 · Vue 3 UI |
+
 ### 📖 使用场景
 
 - **会议记录** — 2 小时会议，5 分钟出摘要
@@ -208,6 +215,13 @@ cd .. && start.bat
 │        s2t_mcp_server.py (14 tools)         │
 └─────────────────────────────────────────────┘
 ```
+
+### 📋 Changelog
+
+| Version | Date | Highlights |
+|:--------|:-----|:-----------|
+| **v1.1.0** | 2026-07-11 | 🎬 Video content analysis (URL→transcribe→screenshot→multimodal→merge summary) · LLM unified to llama.cpp · MCP 14 tools |
+| **v1.0.0** | 2026-06-01 | 🎉 Initial release: transcription · AI summary · viewpoint tracking · real-time recording · MCP 12 tools · Vue 3 UI |
 
 ### 📖 Use Cases
 
