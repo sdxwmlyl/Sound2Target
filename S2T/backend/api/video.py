@@ -112,11 +112,12 @@ async def process_video_analysis(
             project_id = project.id
 
             # Upload audio file via internal API
+            _base = "http://localhost:8000"  # 与当前服务同端口
             with open(audio_info["path"], "rb") as f:
                 files = {"file": ("audio.wav", f, "audio/wav")}
                 data = {"audio_name": video_title[:50]}
                 resp = http_requests.post(
-                    f"http://localhost:8000/api/projects/{project_id}/upload",
+                    f"{_base}/api/projects/{project_id}/upload",
                     files=files, data=data, timeout=60
                 )
                 resp.raise_for_status()
@@ -127,7 +128,7 @@ async def process_video_analysis(
             for _ in range(120):
                 time.sleep(5)
                 resp = http_requests.get(
-                    f"http://localhost:8000/api/audio-files/{audio_file_id}",
+                    f"{_base}/api/audio-files/{audio_file_id}",
                     timeout=10
                 )
                 info = resp.json()
@@ -142,7 +143,7 @@ async def process_video_analysis(
 
             # Get transcript segments
             resp = http_requests.get(
-                f"http://localhost:8000/api/audio-files/{audio_file_id}/transcript",
+                f"{_base}/api/audio-files/{audio_file_id}/transcript",
                 timeout=30
             )
             transcript_data = resp.json()
