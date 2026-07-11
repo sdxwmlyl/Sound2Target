@@ -68,11 +68,12 @@ cd .. && start.bat
 | 🎤 **多源录音** | 麦克风 / 系统声音(VB-CABLE) / 文件上传 |
 | 📝 **智能转写** | FunASR Paraformer-large + 说话人分离 + 热词增强 |
 | 🤖 **AI 总结** | 一键摘要 · 智能问答 · 观点演变追踪（流式输出） |
-| 🔌 **Agent 集成** | MCP Server 12 工具 · REST API · 批量流水线 |
+| 🎬 **视频分析** | 输入视频 URL → 自动下载转写 → 截图识别 → 双轨融合总结 |
+| 🔌 **Agent 集成** | MCP Server 14 工具 · REST API · 批量流水线 |
 | 💻 **低配置友好** | 纯 CPU 可运行，无需独显；8GB 内存即可流畅工作 |
 | 🎨 **现代 UI** | Apple 风格 · Markdown 渲染 · 响应式布局 |
 
-> **为什么低配置很重要？** 不是每个人都有 RTX 4090。FunASR 基于 PyTorch CPU 推理，普通笔记本就能跑。LLM 部分通过 Ollama 量化模型（Q4_K_M）或云端 API（阿里百炼/Deepseek）解决，显卡门槛为零。
+> **为什么低配置很重要？** 不是每个人都有 RTX 4090。FunASR 基于 PyTorch CPU 推理，普通笔记本就能跑。LLM 部分通过 llama.cpp 量化模型（Q4_K_M）或云端 API（阿里百炼/Deepseek）解决，显卡门槛为零。
 
 ### 🆚 和其他方案的区别
 
@@ -83,7 +84,8 @@ cd .. && start.bat
 | **说话人分离** | ✅ | ✅ | ❌ |
 | **实时录音转写** | ✅ | ⚠️ | ❌ |
 | **观点演变追踪** | ✅ | ❌ | ❌ |
-| **MCP/Agent 集成** | ✅ 12 工具 | ❌ | ❌ |
+| **视频内容分析** | ✅ URL→总结 | ❌ | ❌ |
+| **MCP/Agent 集成** | ✅ 14 工具 | ❌ | ❌ |
 | **低配置可运行** | ✅ CPU 即可 | ✅ 云端 | ❌ 需 GPU |
 | **中文优化** | ✅ 热词增强 | ⚠️ | ⚠️ |
 
@@ -98,14 +100,18 @@ cd .. && start.bat
 │               FastAPI Backend               │
 │  ┌─────────┐ ┌─────────┐ ┌───────────────┐ │
 │  │ ASR     │ │ LLM     │ │ 实时录音引擎   │ │
-│  │ FunASR  │ │ Ollama  │ │ sounddevice   │ │
+│  │ FunASR  │ │llama.cpp│ │ sounddevice   │ │
 │  │Paraformer│ │百炼/DS │ │ WebSocket     │ │
 │  └─────────┘ └─────────┘ └───────────────┘ │
+│  ┌─────────────────────────────────────────┐│
+│  │ 视频分析 │ yt-dlp下载 → 转写 → 截图 →   ││
+│  │          │ 多模态识别 → 双轨融合总结     ││
+│  └─────────────────────────────────────────┘│
 │                  SQLite                     │
 └─────────────────────────────────────────────┘
           ▲ MCP Protocol
 ┌─────────┴───────────────────────────────────┐
-│        s2t_mcp_server.py (12 tools)         │
+│        s2t_mcp_server.py (14 tools)         │
 └─────────────────────────────────────────────┘
 ```
 
@@ -114,6 +120,7 @@ cd .. && start.bat
 - **会议记录** — 2 小时会议，5 分钟出摘要
 - **访谈转写** — 说话人分离，谁说了什么一目了然
 - **课程笔记** — 录音自动转文字 + AI 提炼重点
+- **视频内容提取** — 输入 B 站/YouTube 链接，自动转写 + 图表识别 + 结构化总结
 - **Agent 工作流** — MCP 工具对接 AI Agent，自动化处理
 
 ### 📚 文档
@@ -156,11 +163,12 @@ cd .. && start.bat
 | 🎤 **Multi-Source Recording** | Microphone / System audio (VB-CABLE) / File upload |
 | 📝 **Smart Transcription** | FunASR Paraformer-large + Speaker diarization + Hotword boost |
 | 🤖 **AI Intelligence** | One-click summary · Q&A · Viewpoint evolution tracking |
-| 🔌 **Agent Integration** | MCP Server (12 tools) · REST API · Batch pipeline |
+| 🎬 **Video Analysis** | Input video URL → auto download → transcribe → screenshot → dual-track merge summary |
+| 🔌 **Agent Integration** | MCP Server (14 tools) · REST API · Batch pipeline |
 | 💻 **Low-Spec Friendly** | Runs on pure CPU, no GPU required; 8GB RAM is enough |
 | 🎨 **Modern UI** | Apple-style design · Markdown rendering · Responsive |
 
-> **Why does low-spec matter?** Not everyone has an RTX 4090. FunASR runs on PyTorch CPU inference — any laptop handles it. For LLM, use Ollama quantized models (Q4_K_M) or cloud APIs (Aliyun/Deepseek) — zero GPU required.
+> **Why does low-spec matter?** Not everyone has an RTX 4090. FunASR runs on PyTorch CPU inference — any laptop handles it. For LLM, use llama.cpp quantized models (Q4_K_M) or cloud APIs (Aliyun/Deepseek) — zero GPU required.
 
 ### 🆚 Why not use X?
 
@@ -171,7 +179,8 @@ cd .. && start.bat
 | **Speaker diarization** | ✅ | ✅ | ❌ |
 | **Real-time transcription** | ✅ | ⚠️ | ❌ |
 | **Viewpoint tracking** | ✅ | ❌ | ❌ |
-| **MCP/Agent tools** | ✅ 12 tools | ❌ | ❌ |
+| **Video content analysis** | ✅ URL→summary | ❌ | ❌ |
+| **MCP/Agent tools** | ✅ 14 tools | ❌ | ❌ |
 | **Runs without GPU** | ✅ CPU OK | ✅ Cloud | ❌ Needs GPU |
 | **Chinese optimized** | ✅ hotwords | ⚠️ | ⚠️ |
 
@@ -186,13 +195,17 @@ cd .. && start.bat
 │               FastAPI Backend               │
 │  ┌─────────┐ ┌─────────┐ ┌───────────────┐ │
 │  │ ASR     │ │ LLM     │ │ Realtime      │ │
-│  │ FunASR  │ │ Ollama  │ │ sounddevice   │ │
+│  │ FunASR  │ │llama.cpp│ │ sounddevice   │ │
 │  └─────────┘ └─────────┘ └───────────────┘ │
+│  ┌─────────────────────────────────────────┐│
+│  │ Video    │ yt-dlp → transcribe → OCR →  ││
+│  │ Analysis │ dual-track merge summary     ││
+│  └─────────────────────────────────────────┘│
 │                  SQLite                     │
 └─────────────────────────────────────────────┘
           ▲ MCP Protocol
 ┌─────────┴───────────────────────────────────┐
-│        s2t_mcp_server.py (12 tools)         │
+│        s2t_mcp_server.py (14 tools)         │
 └─────────────────────────────────────────────┘
 ```
 
@@ -201,6 +214,7 @@ cd .. && start.bat
 - **Meeting notes** — 2-hour meeting summarized in 5 minutes
 - **Interview transcription** — Speaker diarization keeps track of who said what
 - **Lecture notes** — Auto-transcribe + AI extracts key points
+- **Video content extraction** — Input Bilibili/YouTube link, auto transcribe + chart recognition + structured summary
 - **Agent workflows** — MCP tools connect to AI agents for automated processing
 
 ---
