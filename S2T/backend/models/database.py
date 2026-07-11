@@ -72,6 +72,27 @@ def init_db(db_path: str = None):
         CREATE INDEX IF NOT EXISTS idx_audio_project ON audio_files(project_id);
         CREATE INDEX IF NOT EXISTS idx_segments_audio ON transcript_segments(audio_file_id);
         CREATE INDEX IF NOT EXISTS idx_chats_project ON ai_chats(project_id);
+        
+        CREATE TABLE IF NOT EXISTS video_analysis_tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER,
+            url TEXT NOT NULL,
+            video_title TEXT,
+            video_duration REAL,
+            summary_prompt TEXT,
+            sample_interval INTEGER DEFAULT 30,
+            status TEXT DEFAULT 'pending',
+            audio_file_id INTEGER,
+            transcript_segments INTEGER DEFAULT 0,
+            frames_captured INTEGER DEFAULT 0,
+            frames_analyzed INTEGER DEFAULT 0,
+            content_items INTEGER DEFAULT 0,
+            summary TEXT,
+            merged_content TEXT,
+            error_message TEXT,
+            created_at TEXT DEFAULT (datetime('now','localtime')),
+            updated_at TEXT DEFAULT (datetime('now','localtime'))
+        );
     """)
     
     conn.commit()

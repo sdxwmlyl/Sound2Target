@@ -627,6 +627,116 @@ def get_project_info(project_id: int) -> str:
 
 
 # ============================================================
+# 视频内容分析
+# ============================================================
+
+@mcp.tool(description="【视频内容分析】输入视频URL+自定义总结要求，自动完成：下载音频→转写→截图→多模态识别→融合总结。双轨合并策略确保不遗漏。")
+def analyze_video(
+    url: str,
+    summary_prompt: str = "请提取视频中的核心内容、关键数据和结论",
+    project_name: str = "",
+    sample_interval: int = 30,
+    enable_frame_capture: bool = True,
+    timeout: int = 600
+) -> str:
+    """
+    视频内容分析：输入URL，自动完成全链路处理。
+
+    Args:
+        url: 视频URL（支持Bilibili、YouTube等）
+        summary_prompt: 自定义总结要求，如"提取评测维度和数据表格"
+        project_name: 项目名称（可选，默认从视频标题生成）
+        sample_interval: 视觉帧采样间隔（秒），默认30
+        enable_frame_capture: 是否启用视觉帧捕获（需要浏览器环境）
+        timeout: 超时时间（秒），默认600
+
+    Returns:
+        完整分析结果，包含summary、transcript_segments、frames_captured等
+    """
+    if not _is_server_running():
+        return _fail("S2T 服务未运行，请先启动 start_s2t.bat")
+
+    body = {
+        "url": url,
+        "summary_prompt": summary_prompt,
+        "sample_interval": sample_interval,
+        "enable_frame_capture": enable_frame_capture,
+        "enable_transcript": True
+    }
+    if project_name:
+        body["project_name"] = project_name
+
+    # 启动分析任务
+    r = _http_post("/api/video/analyze", body, timeout=30)
+    if "error" in r:
+        return _fail(f"启动视频分析失败: {r['error']}")
+
+    task_id = r.get("task_id")
+    if not task_id:
+        return _fail(f"未获得任务ID: {json.dumps(r, ensure_ascii=False)[:300]}")
+
+    # 轮询等待完成
+    start_time = time.time()
+    last_status = ""
+    while time.time() - start_time < timeout:
+        time.sleep(10)
+        status_r = _http_get(f"/api/video/analyze/{task_id}", timeout=10)
+        if "error" in status_r:
+            continue
+
+        status = status_r.get("status", "unknown")
+        if status != last_status:
+            last_status = status
+
+        if status == "completed":
+            return _ok({
+                "task_id": task_id,
+                "video_title": status_r.get("video_title"),
+                "video_duration": status_r.get("video_duration"),
+                "transcript_segments": status_r.get("transcript_segments", 0),
+                "frames_captured": status_r.get("frames_captured", 0),
+                "frames_analyzed": status_r.get("frames_analyzed", 0),
+                "content_items": status_r.get("content_items", 0),
+                "summary": status_r.get("summary", ""),
+                "merged_content": status_r.get("merged_content"),
+                "project_id": status_r.get("project_id"),
+                "message": f"视频分析完成（{status_r.get('video_title', '未知视频')}）"
+            })
+        elif status == "failed":
+            return _fail(f"视频分析失败: {status_r.get('error_message', '未知错误')}")
+
+    return _fail(f"视频分析超时（{timeout}s），任务ID: {task_id}，当前状态: {last_status}")
+
+
+@mcp.tool(description="查询视频分析任务状态和进度")
+def check_video_analysis(task_id: int) -> str:
+    """查询视频分析任务的当前状态和进度。"""
+    if not _is_server_running():
+        return _fail("S2T 服务未运行")
+
+    r = _http_get(f"/api/video/analyze/{task_id}", timeout=10)
+    if "error" in r:
+        return _fail(f"查询失败: {r['error']}")
+
+    status = r.get("status", "unknown")
+    progress = []
+    if r.get("transcript_segments"):
+        progress.append(f"转写{r['transcript_segments']}段")
+    if r.get("frames_captured"):
+        progress.append(f"截图{r['frames_captured']}帧")
+    if r.get("frames_analyzed"):
+        progress.append(f"识别{r['frames_analyzed']}帧")
+
+    return _ok({
+        "task_id": task_id,
+        "status": status,
+        "video_title": r.get("video_title"),
+        "progress": " / ".join(progress) if progress else "处理中",
+        "error_message": r.get("error_message")
+    })
+
+
+# ============================================================
 # 主入口
 # ============================================================
 if __name__ == "__main__":

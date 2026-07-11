@@ -16,6 +16,7 @@ from api.realtime_routes import router as realtime_router
 from api.llm import router as llm_router
 from api.transcribe import router as transcribe_router
 from api.viewpoint import router as viewpoint_router
+from api.video import router as video_router
 
 settings = get_settings()
 
@@ -31,6 +32,10 @@ async def lifespan(app: FastAPI):
     upload_dir = Path(settings.storage.upload_dir)
     upload_dir.mkdir(parents=True, exist_ok=True)
     print(f"Upload directory: {upload_dir}")
+    
+    video_temp = Path(settings.video.temp_dir)
+    video_temp.mkdir(parents=True, exist_ok=True)
+    print(f"Video temp directory: {video_temp}")
     
     yield
     
@@ -57,6 +62,7 @@ app.include_router(realtime_router)
 app.include_router(llm_router)
 app.include_router(transcribe_router)
 app.include_router(viewpoint_router)
+app.include_router(video_router)
 
 
 @app.get("/")

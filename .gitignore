@@ -70,8 +70,8 @@ meeting-transcriber/
 # Temporary scripts (project-specific helper scripts)
 auto_*.py
 check_*.py
-cleanup_*.py
-create_*.py
+cleanup_prep.py
+create_project*.py
 debug_*.py
 diagnose_*.py
 extract_*.py
@@ -85,16 +85,20 @@ new_project.py
 poll*.py
 precheck.py
 record_*.py
-reset_*.py
-restart_*.py
+reset_and_restart.py
+restart_backend.py
 retry_*.py
 retranscribe_*.py
 see_*.py
 show_*.py
-start_*.py
-stop_*.py
+start_backend.bat
+start_frontend.bat
+start_detached.py
+start_project13.py
+start_s2t_backend.py
+start_recording.py
+stop_now.py
 summarize_*.py
-test_*.py
 upload_*.py
 analyze_*.py
 transcript_bridge.txt

@@ -5,6 +5,7 @@ from models.session import Session, SessionModel
 from models.audio_file import AudioFile, AudioFileModel
 from models.transcript import TranscriptSegment, TranscriptModel
 from models.hotwords import Hotword, HotwordModel
+from models.video_analysis import VideoAnalysisModel
 
 __all__ = [
     'get_settings',
@@ -13,5 +14,6 @@ __all__ = [
     'Session', 'SessionModel',
     'AudioFile', 'AudioFileModel',
     'TranscriptSegment', 'TranscriptModel',
-    'Hotword', 'HotwordModel'
+    'Hotword', 'HotwordModel',
+    'VideoAnalysisModel',
 ]

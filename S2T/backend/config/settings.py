@@ -54,12 +54,30 @@ class StorageConfig(BaseModel):
     upload_dir: str = "./data/uploads"
 
 
+class VideoConfig(BaseModel):
+    yt_dlp_path: str = "yt-dlp"
+    sample_interval: int = 30
+    max_duration: int = 3600
+    browser_timeout: int = 300
+    temp_dir: str = "./data/video_temp"
+
+
+class MultimodalConfig(BaseModel):
+    provider: str = "dashscope"
+    base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    model: str = "qwen-vl-max"
+    api_key: str = ""
+    max_tokens: int = 2048
+
+
 class Settings(BaseModel):
     asr: ASRConfig = ASRConfig()
     llm: LLMConfig = LLMConfig()
     audio: AudioConfig = AudioConfig()
     database: DatabaseConfig = DatabaseConfig()
     storage: StorageConfig = StorageConfig()
+    video: VideoConfig = VideoConfig()
+    multimodal: MultimodalConfig = MultimodalConfig()
 
     class Config:
         extra = "ignore"
