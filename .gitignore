@@ -109,3 +109,4 @@ create_cdp_shortcut.ps1
 # Test frontend batch
 S2T/test_frontend.bat
 S2T/test_*.py
+vite.log  
