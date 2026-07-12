@@ -458,6 +458,23 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* ── Element Plus 兼容变量 ── */
+:root {
+  --s-bg:       #ffffff;
+  --s-bg-alt:   #f5f7fa;
+  --s-bg-hover: #ecf5ff;
+  --s-border:   #e4e7ed;
+  --s-border-h: #dcdfe6;
+  --s-text-1:   #303133;
+  --s-text-2:   #606266;
+  --s-text-3:   #909399;
+  --s-accent:   #409eff;
+  --s-accent-h: #337ecc;
+  --s-green:    #22c55e;
+  --s-yellow:   #eab308;
+  --s-red:      #ef4444;
+}
+
 .settings-page {
   max-width: 900px;
   margin: 0 auto;
@@ -470,12 +487,12 @@ onMounted(async () => {
 .page-header h1 {
   font-size: 28px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--s-text-1);
   margin: 0 0 6px;
 }
 .page-subtitle {
   font-size: 14px;
-  color: var(--text-tertiary);
+  color: var(--s-text-3);
   margin: 0;
 }
 
@@ -483,18 +500,23 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding: 24px;
+  background: #f0f2f5;
+  border-radius: 20px;
 }
 
 /* ── Card ── */
 .settings-card {
-  background: var(--surface-primary);
-  border: 1px solid var(--border-primary);
+  background: #ffffff;
+  border: 1px solid #e4e7ed;
   border-radius: 16px;
   padding: 24px;
-  transition: border-color 0.2s;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 .settings-card:hover {
-  border-color: var(--border-secondary);
+  border-color: #dcdfe6;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .card-header {
@@ -503,12 +525,12 @@ onMounted(async () => {
 .card-header h3 {
   font-size: 18px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #303133;
   margin: 0 0 4px;
 }
 .card-desc {
   font-size: 13px;
-  color: var(--text-tertiary);
+  color: #909399;
 }
 
 /* ── Form ── */
@@ -519,29 +541,33 @@ onMounted(async () => {
   display: block;
   font-size: 13px;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: #606266;
   margin-bottom: 6px;
 }
 .form-input {
   width: 100%;
   padding: 10px 14px;
-  background: var(--surface-secondary);
-  border: 1px solid var(--border-primary);
+  background: #ffffff;
+  border: 1px solid #dcdfe6;
   border-radius: 10px;
-  color: var(--text-primary);
+  color: #303133;
   font-size: 14px;
-  font-family: 'SF Mono', 'Menlo', monospace;
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
   box-sizing: border-box;
 }
 .form-input:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(123, 97, 255, 0.15);
+  border-color: #409eff;
+  box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.15);
+}
+.form-input::placeholder {
+  color: #c0c4cc;
 }
 select.form-input {
   cursor: pointer;
   appearance: none;
+  background-color: #ffffff;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
@@ -559,14 +585,18 @@ select.form-input {
 .icon-btn {
   width: 38px;
   height: 38px;
-  border: 1px solid var(--border-primary);
+  border: 1px solid #dcdfe6;
   border-radius: 10px;
-  background: var(--surface-secondary);
+  background: #f5f7fa;
   cursor: pointer;
   font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: border-color 0.2s;
+}
+.icon-btn:hover {
+  border-color: #409eff;
 }
 
 /* ── Provider tabs ── */
@@ -575,24 +605,32 @@ select.form-input {
   gap: 8px;
   flex-wrap: wrap;
 }
+.provider-fields {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e8eff7;
+}
 .tab {
   padding: 8px 16px;
   border-radius: 10px;
-  border: 1px solid var(--border-primary);
-  background: var(--surface-secondary);
-  color: var(--text-secondary);
+  border: 1px solid #dcdfe6;
+  background: #f5f7fa;
+  color: #606266;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
 }
 .tab:hover {
-  border-color: var(--accent-primary);
-  color: var(--text-primary);
+  border-color: #409eff;
+  color: #303133;
+  background: #ecf5ff;
 }
 .tab.active {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
+  background: #409eff;
+  border-color: #409eff;
   color: #fff;
 }
 
@@ -608,63 +646,74 @@ select.form-input {
 .hw-requirements {
   margin-top: 20px;
   padding: 20px;
-  background: var(--surface-secondary);
+  background: #f0f5ff;
   border-radius: 12px;
+  border: 1px solid #d4e4ff;
 }
 .hw-requirements h4 {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #303133;
   margin: 0 0 12px;
 }
 .hw-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 13px;
+  border: 1px solid #d4e4ff;
+  border-radius: 8px;
+  overflow: hidden;
 }
 .hw-table th {
   text-align: left;
   padding: 10px 12px;
-  border-bottom: 2px solid var(--border-primary);
-  color: var(--text-secondary);
+  border-bottom: 2px solid #b8d4ff;
+  color: #303133;
   font-weight: 600;
+  background: #e6f0ff;
 }
 .hw-table td {
   padding: 10px 12px;
-  border-bottom: 1px solid var(--border-primary);
-  color: var(--text-primary);
+  border-bottom: 1px solid #e8eff7;
+  color: #303133;
+  background: #ffffff;
 }
-.hw-table tr.active {
-  background: rgba(123, 97, 255, 0.08);
+.hw-table tr:last-child td {
+  border-bottom: none;
 }
 .hw-table tr.active td {
-  color: var(--accent-primary);
+  background: #dbeafe;
+  color: #1d4ed8;
   font-weight: 600;
 }
 .hw-note {
   font-size: 12px;
-  color: var(--text-tertiary);
+  color: #606266;
   margin: 12px 0 0;
   line-height: 1.6;
 }
 .hw-note code {
-  background: var(--surface-primary);
+  background: #ffffff;
+  border: 1px solid #d4e4ff;
   padding: 1px 6px;
   border-radius: 4px;
   font-size: 12px;
+  color: #303133;
 }
 
 /* ── Model status ── */
 .model-status {
   margin-top: 20px;
   padding: 20px;
-  background: var(--surface-secondary);
+  background: #f0f9eb;
   border-radius: 12px;
+  border: 1px solid #c2e7b0;
 }
 .model-status h4 {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #303133;
   margin: 0 0 12px;
 }
 .status-grid {
@@ -678,9 +727,10 @@ select.form-input {
   gap: 10px;
   padding: 10px 14px;
   border-radius: 10px;
-  background: var(--surface-primary);
+  background: #ffffff;
+  border: 1px solid #c2e7b0;
   font-size: 13px;
-  color: var(--text-primary);
+  color: #303133;
 }
 .status-item.ok {
   border-left: 3px solid #22c55e;
@@ -695,7 +745,7 @@ select.form-input {
 .status-hint {
   margin-left: auto;
   font-size: 11px;
-  color: var(--text-tertiary);
+  color: #909399;
 }
 
 /* ── Device list ── */
@@ -709,19 +759,19 @@ select.form-input {
   align-items: center;
   gap: 14px;
   padding: 14px;
-  background: var(--surface-secondary);
+  background: #f8fafc;
   border-radius: 12px;
-  border: 1px solid var(--border-primary);
+  border: 1px solid #e0e6ed;
 }
 .device-icon {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: var(--surface-primary);
+  background: #ecf5ff;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-tertiary);
+  color: #909399;
 }
 .device-icon svg {
   width: 20px;
@@ -737,12 +787,12 @@ select.form-input {
 .device-name {
   display: block;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #303133;
   font-size: 14px;
 }
 .device-meta {
   font-size: 12px;
-  color: var(--text-tertiary);
+  color: #909399;
 }
 .device-badge {
   font-size: 11px;
@@ -759,7 +809,7 @@ select.form-input {
   display: flex;
   justify-content: flex-end;
   padding-top: 16px;
-  border-top: 1px solid var(--border-primary);
+  border-top: 1px solid #e4e7ed;
   margin-top: 4px;
 }
 .btn {
@@ -772,11 +822,11 @@ select.form-input {
   transition: all 0.2s;
 }
 .btn-primary {
-  background: var(--accent-primary);
+  background: #409eff;
   color: #fff;
 }
 .btn-primary:hover:not(:disabled) {
-  background: var(--accent-hover, #6b52e6);
+  background: #337ecc;
 }
 .btn-primary:disabled {
   opacity: 0.5;
@@ -818,7 +868,7 @@ select.form-input {
 .loading, .empty {
   text-align: center;
   padding: 32px 16px;
-  color: var(--text-tertiary);
+  color: #909399;
   font-size: 14px;
 }
 
