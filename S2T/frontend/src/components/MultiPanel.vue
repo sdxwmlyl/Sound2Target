@@ -144,7 +144,7 @@ function formatTime(dateStr) {
 }
 
 .content-list {
-  max-height: 600px;
+  flex: 1;
   overflow-y: auto;
 }
 
@@ -206,7 +206,7 @@ function formatTime(dateStr) {
 
 .card-content {
   padding: 0 20px 16px;
-  max-height: 300px;
+  max-height: calc(100vh - 400px);
   overflow-y: auto;
 }
 

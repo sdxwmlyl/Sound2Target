@@ -1,7 +1,9 @@
 import os
 import uuid
+import json
 import asyncio
 import logging
+import subprocess
 import aiofiles
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, BackgroundTasks
@@ -31,6 +33,15 @@ class ProjectUpdate(BaseModel):
 
 class HotwordsUpdate(BaseModel):
     hotwords: str
+
+
+class DownloadUrlRequest(BaseModel):
+    url: str
+    audio_name: Optional[str] = None
+
+
+class SegmentUpdate(BaseModel):
+    text: str
 
 
 class AudioUploadResponse(BaseModel):
@@ -222,6 +233,103 @@ async def upload_audio(
     }
 
 
+@router.post("/projects/{project_id}/download-url")
+async def download_url_audio(
+    project_id: int,
+    data: DownloadUrlRequest,
+    background_tasks: BackgroundTasks
+):
+    """通过URL下载音频并自动转写（支持视频平台链接，仅提取音频）"""
+    project = ProjectModel.get_by_id(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    settings = get_settings()
+    upload_dir = Path(settings.storage.upload_dir)
+    upload_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use yt-dlp to download audio
+    filename_base = f"url_{uuid.uuid4().hex[:8]}"
+    output_template = str(upload_dir / f"{filename_base}.%(ext)s")
+
+    yt_dlp_path = settings.video.yt_dlp_path
+    cmd = [
+        yt_dlp_path,
+        "-x", "--audio-format", "wav",
+        "-o", output_template,
+        "--print-json",
+        "--no-playlist",
+        "--no-warnings",
+        data.url
+    ]
+
+    try:
+        result = await asyncio.to_thread(
+            subprocess.run, cmd, capture_output=True, text=True, timeout=300
+        )
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=504, detail="Download timed out (5 min)")
+
+    if result.returncode != 0:
+        error_msg = result.stderr[:300] if result.stderr else "Unknown error"
+        raise HTTPException(status_code=400, detail=f"yt-dlp failed: {error_msg}")
+
+    # Parse JSON metadata from stdout
+    info = {}
+    for line in result.stdout.strip().split('\n'):
+        line = line.strip()
+        if line.startswith('{'):
+            try:
+                info = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+    video_title = info.get("title", data.url[:50])
+    audio_name = data.audio_name or video_title[:80]
+
+    # Find the downloaded file
+    wav_path = upload_dir / f"{filename_base}.wav"
+    if not wav_path.exists():
+        # Try other extensions yt-dlp might have left
+        for ext in ("m4a", "opus", "webm", "mp3", "ogg"):
+            candidate = upload_dir / f"{filename_base}.{ext}"
+            if candidate.exists():
+                wav_path = candidate
+                break
+
+    if not wav_path.exists():
+        raise HTTPException(status_code=500, detail="Downloaded file not found on disk")
+
+    file_size = wav_path.stat().st_size
+    duration = await asyncio.to_thread(get_audio_duration, str(wav_path))
+
+    audio_file = AudioFileModel.create(
+        project_id=project_id,
+        audio_name=audio_name,
+        filename=wav_path.name,
+        filepath=str(wav_path),
+        source_type="url",
+        duration=duration,
+        file_size=file_size
+    )
+
+    background_tasks.add_task(
+        process_transcribe,
+        audio_file.id,
+        project.hotwords or ""
+    )
+
+    return {
+        "id": audio_file.id,
+        "audio_name": audio_file.audio_name,
+        "filename": audio_file.filename,
+        "source_type": "url",
+        "duration": audio_file.duration,
+        "file_size": audio_file.file_size,
+        "status": audio_file.status
+    }
+
+
 @router.get("/audio-files/{audio_file_id}")
 async def get_audio_file(audio_file_id: int):
     audio_file = AudioFileModel.get_by_id(audio_file_id)
@@ -281,12 +389,12 @@ async def get_transcript(audio_file_id: int):
 
 
 @router.put("/transcript-segments/{segment_id}")
-async def update_segment(segment_id: int, text: str):
+async def update_segment(segment_id: int, data: SegmentUpdate):
     segment = TranscriptModel.get_by_id(segment_id)
     if not segment:
         raise HTTPException(status_code=404, detail="Segment not found")
     
-    updated = TranscriptModel.update_text(segment_id, text)
+    updated = TranscriptModel.update_text(segment_id, data.text)
     return {
         "id": updated.id,
         "text": updated.text,

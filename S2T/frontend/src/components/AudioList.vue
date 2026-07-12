@@ -67,6 +67,17 @@
               </svg>
               系统
             </button>
+            <button 
+              class="source-btn" 
+              :class="{ active: newAudio.sourceType === 'url' }"
+              @click="newAudio.sourceType = 'url'"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
+              URL
+            </button>
           </div>
           <div v-if="newAudio.sourceType === 'system'" class="system-tip">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -100,7 +111,7 @@
         </div>
         
         <!-- 录音状态 -->
-        <div v-if="newAudio.sourceType !== 'file' && isRecording" class="recording-status">
+        <div v-if="newAudio.sourceType !== 'file' && newAudio.sourceType !== 'url' && isRecording" class="recording-status">
           <div class="recording-indicator">
             <span class="dot"></span>
             <span>录音中 {{ formatDuration(recordingDuration) }}</span>
@@ -110,6 +121,23 @@
               <span class="text-speaker">{{ seg.speaker_id }}:</span>
               <span class="text-content">{{ seg.text }}</span>
             </div>
+          </div>
+        </div>
+
+        <!-- URL输入 -->
+        <div v-if="newAudio.sourceType === 'url'" class="url-input-section">
+          <div class="form-row">
+            <label>链接</label>
+            <input
+              v-model="newAudio.url"
+              placeholder="输入视频/音频URL（支持YouTube、B站等）"
+              class="form-input"
+              @keyup.enter="handleDownloadUrl"
+            />
+          </div>
+          <div v-if="urlDownloading" class="url-downloading">
+            <div class="spinner"></div>
+            <span>正在下载音频，请稍候...</span>
           </div>
         </div>
         
@@ -122,6 +150,14 @@
             @click="handleUpload"
           >
             上传并转写
+          </button>
+          <button
+            v-else-if="newAudio.sourceType === 'url'"
+            class="btn-submit"
+            :disabled="!newAudio.url || urlDownloading"
+            @click="handleDownloadUrl"
+          >
+            {{ urlDownloading ? '下载中...' : '下载并转写' }}
           </button>
           <button 
             v-else-if="!isRecording"
@@ -157,6 +193,10 @@
           <svg v-else-if="audio.source_type === 'microphone'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          </svg>
+          <svg v-else-if="audio.source_type === 'url'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
           </svg>
           <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
@@ -238,7 +278,8 @@ const emit = defineEmits(['refresh', 'play', 'delete', 'show-ai-chat'])
 const showAddPanel = ref(false)
 const fileInput = ref(null)
 const selectedFiles = ref([])
-const newAudio = ref({ name: '', sourceType: 'file' })
+const newAudio = ref({ name: '', sourceType: 'file', url: '' })
+const urlDownloading = ref(false)
 
 // 录音相关
 const isRecording = ref(false)
@@ -255,13 +296,14 @@ const canSubmitFile = computed(() => {
 function toggleAddPanel() {
   showAddPanel.value = !showAddPanel.value
   if (showAddPanel.value) {
-    newAudio.value = { name: '', sourceType: 'file' }
+    newAudio.value = { name: '', sourceType: 'file', url: '' }
     selectedFiles.value = []
   }
 }
 
 function cancelAdd() {
   showAddPanel.value = false
+  urlDownloading.value = false
   if (isRecording.value) {
     stopRecording()
   }
@@ -293,6 +335,27 @@ async function handleUpload() {
   
   showAddPanel.value = false
   emit('refresh')
+}
+
+async function handleDownloadUrl() {
+  if (!newAudio.value.url) return
+
+  urlDownloading.value = true
+  try {
+    await projectApi.downloadUrl(
+      props.projectId,
+      newAudio.value.url,
+      newAudio.value.name || ''
+    )
+    ElMessage.success('下载成功，正在转写...')
+    showAddPanel.value = false
+    emit('refresh')
+  } catch (e) {
+    const msg = e.response?.data?.detail || e.message || '下载失败'
+    ElMessage.error(msg)
+  } finally {
+    urlDownloading.value = false
+  }
 }
 
 function startRecording() {
@@ -392,7 +455,7 @@ async function handleStop(audio) {
 }
 
 function getTypeLabel(type) {
-  const labels = { file: '文件', microphone: '麦克风', system: '系统' }
+  const labels = { file: '文件', microphone: '麦克风', system: '系统', url: 'URL' }
   return labels[type] || type
 }
 
@@ -647,6 +710,32 @@ function formatDate(dateStr) {
   color: #1C1C1E;
 }
 
+.url-input-section {
+  margin-top: 4px;
+}
+
+.url-downloading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  color: #007AFF;
+  font-size: 13px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 122, 255, 0.2);
+  border-top-color: #007AFF;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -730,6 +819,11 @@ function formatDate(dateStr) {
 .item-icon.system {
   background: rgba(52, 199, 89, 0.1);
   color: #34C759;
+}
+
+.item-icon.url {
+  background: rgba(88, 86, 214, 0.1);
+  color: #5856D6;
 }
 
 .item-icon svg {

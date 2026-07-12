@@ -20,7 +20,9 @@ export const projectApi = {
     return api.post(`/projects/${projectId}/upload`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
-  }
+  },
+  downloadUrl: (projectId, url, audioName) =>
+    api.post(`/projects/${projectId}/download-url`, { url, audio_name: audioName })
 }
 
 export const audioApi = {

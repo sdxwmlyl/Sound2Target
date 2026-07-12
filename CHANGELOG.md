@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.5.1] - 2026-07-12
+
+### Improved
+- **转写内容区域高度优化**
+  - 移除 `content-list` 600px 和 `card-content` 300px 的高度限制
+  - 转写内容现在充分利用浏览器纵向空间，支持自由滚动
+- **发言人名称自定义**
+  - 转写内容区域右上角新增「发言人设置」按钮
+  - 弹窗支持为每位发言人配置真实姓名
+  - 名称持久化到 localStorage，刷新后保留
+  - 发言人标签使用彩色圆点区分，PlaybackReview 页面同步生效
+- **URL 音视频转写**
+  - 音频列表新增「URL」来源选项
+  - 支持输入视频/音频链接（YouTube、B站等），自动下载音频并转写
+  - 复用 yt-dlp 引擎，仅提取音频部分，转写流程与文件上传一致
+  - 后端新增 `POST /api/projects/{id}/download-url` 接口
+
+### Fixed
+- `update_segment` 接口参数从 query string 修正为 JSON body，与前端请求格式一致
+
 ## [1.5.0] - 2026-07-11
 
 ### Added

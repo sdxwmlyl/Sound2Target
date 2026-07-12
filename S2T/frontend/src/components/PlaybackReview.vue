@@ -65,7 +65,7 @@
         @click="seekToSegment(segment)"
       >
         <span class="subtitle-time">{{ formatTime(segment.start_time) }}</span>
-        <span class="subtitle-speaker">发言人{{ segment.speaker_id }}</span>
+        <span class="subtitle-speaker" :style="{ background: getSpeakerColor(segment.speaker_id) }">{{ getSpeakerName(segment.speaker_id) }}</span>
         <span class="subtitle-text">{{ segment.text }}</span>
       </div>
     </div>
@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, reactive, onMounted, watch, nextTick } from 'vue'
 import { audioApi, llmApi } from '@/api'
 import { ElMessage } from 'element-plus'
 import { marked } from 'marked'
@@ -104,6 +104,30 @@ const segments = ref([])
 const summary = ref('')
 const summaryLoading = ref(false)
 
+// Speaker names from localStorage
+const speakerNames = reactive({})
+const SPEAKER_COLORS = [
+  '#007AFF', '#FF3B30', '#34C759', '#FF9500',
+  '#AF52DE', '#5856D6', '#FF2D55', '#00C7BE'
+]
+
+function loadSpeakerNames() {
+  try {
+    const key = `s2t_speaker_names_${props.audio.id}`
+    const saved = localStorage.getItem(key)
+    if (saved) Object.assign(speakerNames, JSON.parse(saved))
+  } catch (e) { /* ignore */ }
+}
+
+function getSpeakerName(speakerId) {
+  return speakerNames[speakerId] || `发言人 ${speakerId}`
+}
+
+function getSpeakerColor(speakerId) {
+  const idx = parseInt(speakerId) || 0
+  return SPEAKER_COLORS[idx % SPEAKER_COLORS.length]
+}
+
 // 音频文件URL - 使用正确的API路径
 const audioUrl = computed(() => {
   return `/api/audio-files/${props.audio.id}/stream`
@@ -121,12 +145,14 @@ const progress = computed(() => {
 // 监听audio属性变化，重新加载数据
 watch(() => props.audio, async (newAudio) => {
   if (newAudio) {
+    loadSpeakerNames()
     await loadTranscript()
     resetPlayer()
   }
 }, { immediate: true })
 
 onMounted(async () => {
+  loadSpeakerNames()
   await loadTranscript()
 })
 
@@ -477,8 +503,12 @@ async function generateSummary() {
 
 .subtitle-speaker {
   font-size: 12px;
-  color: #8E8E93;
+  font-weight: 500;
+  color: #fff;
+  padding: 1px 8px;
+  border-radius: 4px;
   min-width: 60px;
+  text-align: center;
 }
 
 .subtitle-text {
