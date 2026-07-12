@@ -17,6 +17,7 @@ from api.llm import router as llm_router
 from api.transcribe import router as transcribe_router
 from api.viewpoint import router as viewpoint_router
 from api.video import router as video_router
+from api.settings import router as settings_router
 
 settings = get_settings()
 
@@ -63,6 +64,7 @@ app.include_router(llm_router)
 app.include_router(transcribe_router)
 app.include_router(viewpoint_router)
 app.include_router(video_router)
+app.include_router(settings_router)
 
 
 @app.get("/")

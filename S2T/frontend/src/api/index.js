@@ -138,7 +138,9 @@ export const llmApi = {
 }
 
 export const configApi = {
-  get: () => api.get('/config')
+  get: () => api.get('/config'),
+  getSettings: () => api.get('/settings'),
+  updateSettings: (data) => api.put('/settings', data),
 }
 
 export const audioDeviceApi = {

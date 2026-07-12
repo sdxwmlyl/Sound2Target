@@ -1,28 +1,32 @@
 # S2T 后端配置文件
 # 复制此文件为 config.yaml 并根据实际环境修改
+# 也可通过前端「系统设置」页面在线修改，无需手动编辑此文件
 
 asr:
   engine: funasr
-  # FunASR 模型路径（首次运行自动下载到 ~/.cache/modelscope/）
-  model: ""  # speech_paraformer-large-vad-punc
-  spk_model: ""  # speech_campplus_sv
-  vad_model: ""  # speech_fsmn_vad
-  punc_model: ""  # punc_ct-transformer
+  # FunASR 模型路径（留空则首次运行时自动从 ModelScope 下载到 ~/.cache/modelscope/）
+  model: ""
+  spk_model: ""
+  vad_model: ""
+  punc_model: ""
   max_concurrent: 2
-  device: cpu  # cpu / cuda
+  device: cpu  # cpu（推荐，无需 GPU）/ cuda（需 NVIDIA GPU）
 
 llm:
-  provider: ollama  # ollama / aliyun / deepseek
-  ollama:
-    base_url: http://localhost:11434/v1
-    model: qwen3.5:9b
+  # provider: llamacpp / aliyun / deepseek
+  provider: llamacpp
+  llamacpp:
+    base_url: http://localhost:8081/v1
+    model: Qwen3.6-35B-A3B-UD-Q4_K_M.gguf
     api_key: ""
   aliyun:
     base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
     model: qwen-plus
+    api_key: ""  # 或设置环境变量 ALIYUN_API_KEY
   deepseek:
     base_url: https://api.deepseek.com/v1
     model: deepseek-chat
+    api_key: ""  # 或设置环境变量 DEEPSEEK_API_KEY
 
 audio:
   sample_rate: 16000
@@ -39,3 +43,19 @@ database:
 
 storage:
   upload_dir: ./data/uploads
+
+video:
+  yt_dlp_path: "yt-dlp"
+  sample_interval: 30
+  max_duration: 3600
+  browser_timeout: 300
+  temp_dir: "./data/video_temp"
+
+multimodal:
+  # 用于视频截图理解、图文混合分析
+  # provider: dashscope / deepseek / openrouter / custom
+  provider: dashscope
+  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  model: "qwen-vl-max"
+  api_key: ""
+  max_tokens: 2048

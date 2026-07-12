@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.6.0] - 2026-07-12
+
+### Added
+- **系统设置页面重构**
+  - 文字模型配置：支持在线修改 provider（llamacpp / aliyun / deepseek）、Base URL、模型名、API Key
+  - 多模态模型配置：支持在线修改 provider（dashscope / deepseek / openrouter / custom）、Base URL、模型名、API Key
+  - ASR 配置：支持在线修改推理设备（cpu/cuda）、最大并发数（1-8）
+  - 并发数 vs 硬件需求对照表（CPU 模式下 4 档配置参考）
+  - ASR 模型状态显示：自动检测 ModelScope 缓存是否已有模型文件
+  - 所有配置修改即时生效，无需重启服务（`PUT /api/settings` 写入 config.yaml + reload）
+
+### Fixed
+- **ASR 模型开箱即用**
+  - config.yaml 中 ASR 模型路径留空时，自动使用 ModelScope 默认模型 ID
+  - 首次运行自动从 ModelScope 下载 FunASR 模型（总计 ~3.5GB），之后使用本地缓存
+  - 修复 config.yaml.example 中 LLM provider 从 `ollama` 更新为 `llamacpp`
+- **配置文件同步更新**
+  - config.yaml.example 更新为 llamacpp 为默认 provider
+  - 多模态配置添加到示例文件
+
 ## [1.5.1] - 2026-07-12
 
 ### Improved
@@ -56,7 +76,7 @@
 
 ### Added
 - AI 总结功能 (`api/llm.py`)
-  - 支持 Ollama / Aliyun / Deepseek 三种 LLM 提供商
+  - 支持 llama.cpp / Aliyun / Deepseek 三种 LLM 提供商
   - 流式总结 + 逐块处理长文本
 - MCP 工具 `summarize_project`
 

@@ -30,6 +30,14 @@ class ASREngine:
             cls._semaphore = asyncio.Semaphore(settings.asr.max_concurrent)
         return cls._semaphore
     
+    # FunASR 默认模型 ID（ModelScope），当 config.yaml 未指定本地路径时自动使用
+    DEFAULT_MODELS = {
+        "model": "iic/speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+        "spk_model": "iic/speech_campplus_sv_zh-cn_16k-common",
+        "vad_model": "iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
+        "punc_model": "iic/punc_ct-transformer_cn-en-common-vocab471067-large",
+    }
+
     @classmethod
     async def load_model(cls):
         async with cls._lock:
@@ -39,18 +47,25 @@ class ASREngine:
             from funasr import AutoModel
             settings = get_settings()
             
-            logger.info(f"Loading ASR models from local path...")
+            # 当 config.yaml 中 model 路径为空时，使用默认模型 ID（首次自动从 ModelScope 下载）
+            model_id = settings.asr.model or cls.DEFAULT_MODELS["model"]
+            spk_id = settings.asr.spk_model or cls.DEFAULT_MODELS["spk_model"]
+            vad_id = settings.asr.vad_model or cls.DEFAULT_MODELS["vad_model"]
+            punc_id = settings.asr.punc_model or cls.DEFAULT_MODELS["punc_model"]
+            
+            source = "local path" if settings.asr.model else "ModelScope (auto-download)"
+            logger.info(f"Loading ASR models from {source}...")
             # 关键修复1: speech_noise_threshold 降低VAD灵敏度，防止低音量语音被误判为静音
             # 默认值0.8太高，对远场/低音量语音不友好。0.5是会议场景推荐值
             cls._model = AutoModel(
-                model=settings.asr.model,
-                spk_model=settings.asr.spk_model,
-                vad_model=settings.asr.vad_model,
+                model=model_id,
+                spk_model=spk_id,
+                vad_model=vad_id,
                 vad_kwargs={
                     "max_single_segment_time": 30000,
                     "speech_noise_threshold": 0.5,  # 关键！默认0.8太高，低音量语音被跳过
                 },
-                punc_model=settings.asr.punc_model,
+                punc_model=punc_id,
                 device=settings.asr.device,
                 trust_remote_code=True
             )
