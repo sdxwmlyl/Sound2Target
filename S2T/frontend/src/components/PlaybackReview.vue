@@ -273,11 +273,12 @@ async function generateSummary() {
   
   try {
     await llmApi.summarize(
-      props.audio.id, 
+      props.audio.id,
       '请总结以下转写内容的主要观点和要点',
       (token) => {
         summary.value += token
-      }
+      },
+      Object.keys(speakerNames).length > 0 ? { ...speakerNames } : null
     )
   } catch (e) {
     if (e.message && e.message.includes('运行中')) {

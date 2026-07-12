@@ -100,6 +100,21 @@ const loading = ref(false)
 const maxContext = ref(3)
 const temperature = ref(0.4)
 
+// 从 localStorage 收集该项目下所有音频的发言人名称映射
+function collectSpeakerNames() {
+  const merged = {}
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i)
+    if (key && key.startsWith('s2t_speaker_names_')) {
+      try {
+        const names = JSON.parse(localStorage.getItem(key))
+        Object.assign(merged, names)
+      } catch (e) { /* ignore */ }
+    }
+  }
+  return Object.keys(merged).length > 0 ? merged : null
+}
+
 onMounted(async () => {
   await loadChatHistory()
 })
@@ -154,7 +169,8 @@ async function sendQuestion() {
       history.length > 0 ? history : null,
       (token) => {
         lastMsg.content += token
-      }
+      },
+      collectSpeakerNames()
     )
     
     lastMsg.loading = false

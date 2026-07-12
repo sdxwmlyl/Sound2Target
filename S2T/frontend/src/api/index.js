@@ -43,11 +43,15 @@ export const transcribeApi = {
 }
 
 export const llmApi = {
-  summarize: async (audioFileId, prompt, onToken) => {
+  summarize: async (audioFileId, prompt, onToken, speakerNames) => {
     const response = await fetch('/api/llm/summarize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ audio_file_id: audioFileId, prompt })
+      body: JSON.stringify({
+        audio_file_id: audioFileId,
+        prompt,
+        speaker_names: speakerNames || null
+      })
     })
     
     if (!response.ok) {
@@ -83,14 +87,15 @@ export const llmApi = {
     }
   },
   
-  chat: async (projectId, question, history, onToken) => {
+  chat: async (projectId, question, history, onToken, speakerNames) => {
     const response = await fetch('/api/llm/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         project_id: projectId,
         question,
-        history: history || null
+        history: history || null,
+        speaker_names: speakerNames || null
       })
     })
     

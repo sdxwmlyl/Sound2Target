@@ -17,6 +17,7 @@ router = APIRouter(prefix="/api/llm", tags=["llm"])
 class SummarizeRequest(BaseModel):
     audio_file_id: int
     prompt: str = "- 会议主题是什么？\n- 罗列每个发言人的核心观点\n- 整理决议事项和后续待办"
+    speaker_names: Optional[dict] = None  # {"0": "张总", "1": "李工"}
 
 
 class ChatRequest(BaseModel):
@@ -26,6 +27,7 @@ class ChatRequest(BaseModel):
     history: Optional[List[dict]] = None
     temperature: float = 0.4
     max_context: int = 3
+    speaker_names: Optional[dict] = None
 
 
 @router.post("/summarize")
@@ -38,7 +40,7 @@ async def summarize_transcript(request: SummarizeRequest):
     if not segments:
         raise HTTPException(status_code=400, detail="No transcript available")
     
-    transcript_text = format_transcript_for_llm(segments)
+    transcript_text = format_transcript_for_llm(segments, request.speaker_names)
     
     # 分块总结策略：每块 ~2500 字符保留 prompt 空间
     MAX_CHUNK = 2500
@@ -138,6 +140,12 @@ async def chat_with_transcript(request: ChatRequest):
         raise HTTPException(status_code=404, detail="Project not found")
     
     transcript_text = TranscriptModel.get_all_text_by_project(request.project_id)
+
+    # 如果提供了发言人名称映射，替换文本中的"发言人 X"
+    if request.speaker_names:
+        for sid, name in request.speaker_names.items():
+            if name and name.strip():
+                transcript_text = transcript_text.replace(f"发言人 {sid}", name.strip())
     
     # 问答场景：优先用最近内容 + 截断
     MAX_CHARS = 3000
@@ -208,17 +216,22 @@ async def get_chat_history(project_id: int, limit: int = 50):
     ]
 
 
-def format_transcript_for_llm(segments) -> str:
+def format_transcript_for_llm(segments, speaker_names: dict = None) -> str:
+    """格式化转写段落供 LLM 使用。speaker_names: {"0": "张总", "1": "李工"}"""
     lines = []
     for s in segments:
         start_min = int(s.start_time // 60)
         start_sec = int(s.start_time % 60)
         end_min = int(s.end_time // 60)
         end_sec = int(s.end_time % 60)
-        
+
+        # 优先用自定义名称，回退到默认编号
+        sid = str(s.speaker_id)
+        name = (speaker_names or {}).get(sid) or f"发言人 {sid}"
+
         lines.append(
             f"[{start_min:02d}:{start_sec:02d}-{end_min:02d}:{end_sec:02d}] "
-            f"发言人 {s.speaker_id}: {s.text}"
+            f"{name}: {s.text}"
         )
     
     return "\n\n".join(lines)
