@@ -429,10 +429,16 @@ async def delete_audio(audio_file_id: int):
     return {"message": "Audio file deleted"}
 
 
-async def process_transcribe(audio_file_id: int, hotwords: str):
+async def process_transcribe(audio_file_id: int, hotwords: str, retry_count: int = 0, max_retries: int = 30):
+    """转写任务，支持ASR占用时自动重试（最多等2.5分钟）"""
     try:
         audio_file = await asyncio.to_thread(AudioFileModel.get_by_id, audio_file_id)
         if not audio_file:
+            return
+        
+        # 已被手动停止或删除，不再重试
+        if audio_file.status in ("stopped", "deleted"):
+            logger.info(f"Transcribe skipped for {audio_file_id}: status={audio_file.status}")
             return
         
         await asyncio.to_thread(AudioFileModel.update_status, audio_file_id, "processing")
@@ -473,9 +479,20 @@ async def process_transcribe(audio_file_id: int, hotwords: str):
         logger.info(f"Transcription completed for {audio_file_id}")
         
     except RuntimeError as e:
-        logger.warning(f"Transcribe retry needed: {e}")
-        await asyncio.sleep(5)
-        await asyncio.to_thread(AudioFileModel.update_status, audio_file_id, "pending")
+        # ASR被占用，自动重试
+        if retry_count < max_retries:
+            logger.info(f"ASR busy for {audio_file_id}, retry {retry_count+1}/{max_retries} in 5s...")
+            await asyncio.to_thread(AudioFileModel.update_status, audio_file_id, "pending")
+            await asyncio.sleep(5)
+            # 重新入队：用新的coroutine避免栈溢出
+            asyncio.get_event_loop().call_soon(
+                lambda: asyncio.ensure_future(
+                    process_transcribe(audio_file_id, hotwords, retry_count + 1, max_retries)
+                )
+            )
+        else:
+            logger.error(f"Transcribe gave up for {audio_file_id} after {max_retries} retries")
+            await asyncio.to_thread(AudioFileModel.update_status, audio_file_id, "failed", "ASR timeout")
     except Exception as e:
         await asyncio.to_thread(AudioFileModel.update_status, audio_file_id, "failed", str(e))
         logger.error(f"Transcribe error for {audio_file_id}: {e}")
