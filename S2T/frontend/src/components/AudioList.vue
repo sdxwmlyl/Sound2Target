@@ -315,10 +315,19 @@ function triggerFileInput() {
 
 function handleFileSelect(e) {
   selectedFiles.value = Array.from(e.target.files)
+  // 自动用第一个文件名填充名称（去掉扩展名）
+  if (selectedFiles.value.length > 0 && !newAudio.value.name) {
+    const filename = selectedFiles.value[0].name
+    newAudio.value.name = filename.replace(/\.[^/.]+$/, '')
+  }
 }
 
 function handleDrop(e) {
   selectedFiles.value = Array.from(e.dataTransfer.files)
+  if (selectedFiles.value.length > 0 && !newAudio.value.name) {
+    const filename = selectedFiles.value[0].name
+    newAudio.value.name = filename.replace(/\.[^/.]+$/, '')
+  }
 }
 
 async function handleUpload() {
